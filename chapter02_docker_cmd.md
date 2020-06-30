@@ -22,9 +22,11 @@ Dockerでは、イメージを管理する際にタグを利用します。例�
 ➜ docker run r-base:4.0.2
 ```
 
+Docker Hubのイメージもつかめたところで、まずはDockerイメージに関するDockerコマンドを見ていきます。
+
 ### pullコマンド
 
-それではDockerコマンドを見ていきましょう。まずは`pull`コマンドです。このコマンドはDoker HubからDockerイメージを取得する際に利用するコマンドです。DockerイメージをDoker Hubではなく他の場所で管理している場合にも利用できます。下記は[tensorflow.org](https://www.tensorflow.org/install/docker?hl=ja)で公開されている機械学習用のフレームワークであるtensorflowのDockerイメージを取得する際のコマンドです。
+まずは`pull`コマンドです。このコマンドはDoker HubからDockerイメージを取得する際に利用するコマンドです。DockerイメージをDoker Hubではなく他の場所で管理している場合にも利用できます。下記は[tensorflow.org](https://www.tensorflow.org/install/docker?hl=ja)で公開されている機械学習用のフレームワークであるtensorflowのDockerイメージを取得する際のコマンドです。
 
 ```text
 → docker pull tensorflow/tensorflow:latest-gpu-jupyter
@@ -238,5 +240,72 @@ Options:
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 docker/whalesay     latest              6b362a9f73eb        5 years ago         247MB
 docker/whalesay     new                 6b362a9f73eb        5 years ago         247MB
+```
+
+### rmiコマンド
+
+`rmi`コマンドはDockerイメージを削除するコマンドです。`docker/whalesay`のイメージを削除してみます。タグが付与していたり、コンテナが参照している場合は消せないので、そのような場合、タグが付与されたイメージや`-f`オプションを付けて削除します。
+
+```text
+➜ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+docker/whalesay     latest              6b362a9f73eb        5 years ago         247MB
+docker/whalesay     new                 6b362a9f73eb        5 years ago         247MB
+ 
+➜ docker rmi 6b362a9f73eb
+Error response from daemon: conflict: unable to delete 6b362a9f73eb (must be forced) - image is referenced in multiple repositories
+ 
+➜ docker rmi docker/whalesay:new
+Untagged: docker/whalesay:new
+ 
+➜ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+docker/whalesay     latest              6b362a9f73eb        5 years ago         247MB
+ 
+➜ docker rmi 6b362a9f73eb
+Error response from daemon: conflict: unable to delete 6b362a9f73eb (must be forced) - image is being used by stopped container de692b7c424a
+ 
+➜ docker rmi -f 6b362a9f73eb
+Untagged: docker/whalesay:latest
+Untagged: docker/whalesay@sha256:178598e51a26abbc958b8a2e48825c90bc22e641de3d31e18aaf55f3258ba93b
+Deleted: sha256:6b362a9f73eb8c33b48c95f4fcce1b6637fc25646728cf7fb0679b2da273c3f4
+```
+
+オプションは下記の通り用意されています。
+
+```text
+➜ docker rmi --help
+
+Usage:	docker rmi [OPTIONS] IMAGE [IMAGE...]
+
+Remove one or more images
+
+Options:
+  -f, --force      Force removal of the image
+      --no-prune   Do not delete untagged parents
+```
+
+### pushコマンド
+
+`push`コマンドはDocker Hubにイメージを公開する際に利用するコマンドです。
+
+```text
+➜ docker push --help
+
+Usage:	docker push [OPTIONS] NAME[:TAG]
+
+Push an image or a repository to a registry
+
+Options:
+      --disable-content-trust   Skip image signing (default true)
+
+```
+
+下記のようにDocker Hubにリポジトリを作成してイメージをアップすることが可能です。
+
+![](.gitbook/assets/username.png)
+
+```text
+
 ```
 
