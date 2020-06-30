@@ -124,7 +124,7 @@ exit
 
 Dockerが正しくインストールされているかどうかの確認を通じて、Dokerを動かしてみました。Dockerではイメージからコンテナを構築することで、環境の統一を図り、イメージが更新されたら、そのイメージを使ってコンテナを構築することで、複数の環境でも同一に動作できるような仕組みを作ることが可能になります。
 
-それでは、不要なコンテナとイメージは削除し、次のチャプターに移動します。停止しているコンテナの確認は`docker ps -a`で行い、コンテナの削除は`docker rm <CONTAINER ID> ...`で実行します。
+不要なコンテナとイメージを削除してみます。停止しているコンテナの確認は`docker ps -a`で行い、コンテナの削除は`docker rm <CONTAINER ID> ...`で実行します。
 
 ```text
 ➜ docker ps -a
@@ -168,6 +168,76 @@ Deleted: sha256:9c27e219663c25e0f28493790cc0b88bc973ba3b1686355f221c38a36978ac63
 ➜ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 ```
+
+### Webサーバーとしてコンテナを構築する
+
+次はWebサーバーとして有名なNginxのイメージを使って、WebサーバーとしてDockerコンテナを起動してみます。`--name`でコンテナに名前を付けることができます。`-p`はポート80番でブラウザからHTTPでのアクセスを行うために記載します。これを実行すると、コンテナを起動している手元のPCがWEBサーバーとして機能するようになります。
+
+```text
+➜ docker run --name webserver -p 80:80 nginx
+Unable to find image 'nginx:latest' locally
+latest: Pulling from library/nginx
+8559a31e96f4: Pull complete 
+8d69e59170f7: Pull complete 
+3f9f1ec1d262: Pull complete 
+d1f5ff4f210d: Pull complete 
+1e22bfa8652e: Pull complete 
+Digest: sha256:21f32f6c08406306d822a0e6e8b7dc81f53f336570e852e25fbe1e3e3d0d0133
+Status: Downloaded newer image for nginx:latest
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+```
+
+`http://www.localhost:80`でブラウザからアクセスすると、Nginxが起動していることがわかります。
+
+![](.gitbook/assets/sukurnshotto-2020-06-30-112121png.png)
+
+別のターミナルを立ち上げて、コンテナの状態を確認します。`PORTS`の部分では、80番ポートを転送し、`NAMES`では`webserver`という名前のサーバーが機能していることがわかります。
+
+```text
+➜ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                NAMES
+aebad5fdc293        nginx               "/docker-entrypoint.…"   4 minutes ago       Up 4 minutes        0.0.0.0:80->80/tcp   webserver
+```
+
+WebサーバーもDockerイメージを利用すれば簡単に構築することができます。コンテナを停止して、不要なコンテナとイメージを削除しておきます。コンテナを停止するには、`docker stop <CONTAINER ID>`で実行できます。`STATUS`をみると`Exited`になっていることが確認できます。
+
+```text
+➜ docker stop aebad5fdc293
+aebad5fdc293
+
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                     PORTS               NAMES
+aebad5fdc293        nginx               "/docker-entrypoint.…"   8 minutes ago       Exited (0) 6 seconds ago                       webserver
+```
+
+コンテナを停止したら、コンテナとイメージを削除しておきます。
+
+```text
+➜ docker rm aebad5fdc293
+aebad5fdc293
+
+➜ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+nginx               latest              2622e6cca7eb        2 weeks ago         132MB
+
+➜ docker rmi nginx
+Untagged: nginx:latest
+Untagged: nginx@sha256:21f32f6c08406306d822a0e6e8b7dc81f53f336570e852e25fbe1e3e3d0d0133
+Deleted: sha256:2622e6cca7ebbb6e310743abce3fc47335393e79171b9d76ba9d4f446ce7b163
+Deleted: sha256:e86d1b8b130bec203609b4b1d7b851bd763fa16e513e5a3fa6102ebea23260e0
+Deleted: sha256:8f9f007533543813bb1aef80b791a16e5e16c7cbbbc456a3a483d0fa7a9effcc
+Deleted: sha256:e2c0065a77fee75795cdcf9f19a72f11769332423cd52ec9e19aacfb878aec8b
+Deleted: sha256:059442698ef65fe8545e4fe9657988a10329b9c3663b368ae7ee0007a9c43949
+Deleted: sha256:13cb14c2acd34e45446a50af25cb05095a17624678dbafbcc9e26086547c1d74
+```
+
+以上がDockerの基本的な使い方のイメージでした。次のチャプターでは、Dockerコマンドに焦点をあててまとめていきます。
 
 
 
