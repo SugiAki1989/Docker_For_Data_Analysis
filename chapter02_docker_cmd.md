@@ -289,6 +289,13 @@ Options:
       --no-prune   Do not delete untagged parents
 ```
 
+不要なコンテナを削除しておきます。
+
+```text
+➜ docker rm de692b7c424a
+de692b7c424a
+```
+
 #### pushコマンド
 
 `push`コマンドはDocker Hubにイメージを公開する際に利用するコマンドです。
