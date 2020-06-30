@@ -61,5 +61,7 @@ Server: Docker Engine - Community
   GitCommit:        fec3683
 ```
 
+[Docker](https://www.docker.com/)のサイトにアクセスして、Docker For Macのインストールは完了させておいてください。
+
 
 

@@ -6,6 +6,16 @@
 
 ### DockerでHello Worldを実行する
 
+まずはDocker HubからDockerイメージを取得するためにログインを行います。
+
+```text
+➜ docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: xxxxxxxxxxxxxxx
+Password: xxxxxxxxxxxxxxx
+Login Succeeded
+```
+
 下記のコマンドで`hello-world`イメージを`docker run`で実行します。`docker run`は、コンテナを作成し、実行するコマンドです。何やら色々と表示されれば、問題なく動作していることが確認できます。
 
 ```text
