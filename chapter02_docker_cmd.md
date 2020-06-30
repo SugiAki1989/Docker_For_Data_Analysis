@@ -24,7 +24,7 @@ Dockerでは、イメージを管理する際にタグを利用します。例�
 
 ここからはDockerイメージに関するコマンドとDockerコンテナに関するコマンドに分けて、Dockerコマンドをまとめます。
 
-### Dockerイメージに関するコマンド
+### Dockerコマンド~Dockerイメージ~
 
 Docker Hubのイメージもつかめたところで、まずはDockerイメージに関するDockerコマンドを見ていきます。
 
@@ -316,7 +316,7 @@ Options:
 
 ![](.gitbook/assets/username.png)
 
-### Dockerコンテナに関するコマンド
+### Dockerコマンド~Dockerコンテナ~
 
 次はコンテナに関するコマンドを見ていきます。
 
