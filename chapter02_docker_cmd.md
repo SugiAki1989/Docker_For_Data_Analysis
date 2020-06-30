@@ -22,9 +22,13 @@ Dockerでは、イメージを管理する際にタグを利用します。例�
 ➜ docker run r-base:4.0.2
 ```
 
+ここからはDockerイメージに関するコマンドとDockerコンテナに関するコマンドに分けて、Dockerコマンドをまとめます。
+
+### Dockerイメージに関するコマンド
+
 Docker Hubのイメージもつかめたところで、まずはDockerイメージに関するDockerコマンドを見ていきます。
 
-### pullコマンド
+#### pullコマンド
 
 まずは`pull`コマンドです。このコマンドはDoker HubからDockerイメージを取得する際に利用するコマンドです。DockerイメージをDoker Hubではなく他の場所で管理している場合にも利用できます。下記は[tensorflow.org](https://www.tensorflow.org/install/docker?hl=ja)で公開されている機械学習用のフレームワークであるtensorflowのDockerイメージを取得する際のコマンドです。
 
@@ -32,7 +36,7 @@ Docker Hubのイメージもつかめたところで、まずはDockerイメー�
 → docker pull tensorflow/tensorflow:latest-gpu-jupyter
 ```
 
-オプションは下記の通り用意されています。`-a`をつけると全てのイメージを取得できるようです。
+オプションは下記の通り用意されています。`-a`をつけると全てのイメージを取得できます。
 
 ```text
 ➜ docker pull --help
@@ -47,7 +51,7 @@ Options:
   -q, --quiet                   Suppress verbose output
 ```
 
-### imagesコマンド
+#### imagesコマンド
 
 `images`コマンドは、取得したイメージを表示するためのコマンドです。現在はイメージがなにもないので、`whalesay`イメージを取得して`images`コマンドを実行してみます。`whalesay`イメージはDockerのロゴでもあるクジラに文字列を喋らせるイメージです
 
@@ -108,7 +112,7 @@ Options:
   -q, --quiet           Only show numeric IDs
 ```
 
-### inspectコマンド
+#### inspectコマンド
 
 `inspect`コマンドはイメージの詳細を確認するためのコマンドです。`docker/whalesay`のイメージIDである`6b362a9f73eb`を使ってみます。結果は下記のようなJSON形式で表示されます。
 
@@ -228,7 +232,7 @@ Options:
       --type string     Return JSON for specified type
 ```
 
-### tagコマンド
+#### tagコマンド
 
 `tag`コマンドはイメージのバージョンを管理するタグを付与するコマンドです。イメージの元になるソースイメージを指定して、タグを指定します。IMAGE IDを見ると同一IDであることがわかります。つまり実態は同じであってコピーや名前を変更したわけではありません。
 
@@ -242,7 +246,7 @@ docker/whalesay     latest              6b362a9f73eb        5 years ago         
 docker/whalesay     new                 6b362a9f73eb        5 years ago         247MB
 ```
 
-### rmiコマンド
+#### rmiコマンド
 
 `rmi`コマンドはDockerイメージを削除するコマンドです。`docker/whalesay`のイメージを削除してみます。タグが付与していたり、コンテナが参照している場合は消せないので、そのような場合、タグが付与されたイメージや`-f`オプションを付けて削除します。
 
@@ -285,7 +289,7 @@ Options:
       --no-prune   Do not delete untagged parents
 ```
 
-### pushコマンド
+#### pushコマンド
 
 `push`コマンドはDocker Hubにイメージを公開する際に利用するコマンドです。
 
@@ -305,7 +309,9 @@ Options:
 
 ![](.gitbook/assets/username.png)
 
-```text
+### Dockerコンテナに関するコマンド
 
-```
+次はコンテナに関するコマンドを見ていきます。
+
+#### createコマンド
 
