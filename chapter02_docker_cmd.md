@@ -555,7 +555,7 @@ Options:
   -t, --time int   Seconds to wait for stop before killing it (default 10)
 ```
 
-#### rmコマンド
+#### rm/pruneコマンド
 
 `rm`コマンドはDockerコンテナの削除を行うコマンドです。さきほどのNginxのコンテナを`rm`コマンドで削除します。
 
@@ -584,6 +584,21 @@ Options:
   -f, --force     Force the removal of a running container (uses SIGKILL)
   -l, --link      Remove the specified link
   -v, --volumes   Remove anonymous volumes associated with the container
+```
+
+`prune`コマンドは使用していないイメージ、コンテナ、ボリューム、ネットワークを一括で削除できます。
+
+```text
+➜ docker system prune
+WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all dangling images
+  - all dangling build cache
+
+Are you sure you want to continue? [y/N] y
+Deleted Containers:
+3f4e186149f738a3500d7639fa89bf530af454de10d9205bcb3b0d91a4467b79
 ```
 
 #### restart/exec/attachコマンド
