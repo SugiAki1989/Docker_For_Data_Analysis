@@ -621,7 +621,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 27baf0c8814d        ubuntu              "bash"              3 minutes ago       Exited (0) 3 seconds ago                       sharp_shirley
 ```
 
-例えばNginx
+例えばNginxのイメージをデタッチモードで立ち上げます。そして、`attach`コマンドでコンテナに入りますが、シェルが動作していないので、何もコマンドを実行できません。そのようなときに`exec`コマンドで入ります。
 
 ```text
 ➜ docker run -p 12345:80 -d nginx
@@ -633,6 +633,7 @@ ff989d27abef        nginx               "/docker-entrypoint.…"   7 seconds ago
  
 ➜ docker attach ff989d27abef
 # コマンドを受け付けない
+# control + C で抜けるとSTATUSはExitedになる
 
 ➜ docker ps -a
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
