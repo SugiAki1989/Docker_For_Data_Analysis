@@ -320,5 +320,43 @@ Options:
 
 次はコンテナに関するコマンドを見ていきます。
 
-#### createコマンド
+#### runコマンド
+
+`run`コマンドはDockerコンテナの構築と起動を同時に行うコマンドです。ubuntuのイメージを使って`run`コマンドを実行すると、デフォルトコマンド\(`bash`\)で指定したコマンドが実行されます。`-it`はコンテナの標準出力\(`-i`\)を開き、端末デバイスを確保するという意味のtty\(`-t`\)の略です。
+
+```text
+➜ docker run -it ubuntu bash
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+a4a2a29f9ba4: Pull complete 
+127c9761dcba: Pull complete 
+d13bf203e905: Pull complete 
+4039240d2e0b: Pull complete 
+Digest: sha256:35c4a2c15539c6c1e4e5fa4e554dac323ad0107d8eb5c582d6ff386b383b7dce
+Status: Downloaded newer image for ubuntu:latest
+root@c662db5d633f:/# 
+```
+
+コンテナからexitで抜けると、コンテナの`STATUS`は`Exited`になります。コンテナを使い捨てたい場合は`--rm`オプションをつけます。
+
+```text
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS                       PORTS               NAMES
+c662db5d633f        ubuntu              "bash"              About a minute ago   Exited (130) 5 seconds ago                       blissful_blackburn
+
+➜ docker rm c662db5d633f
+c662db5d633f
+```
+
+オプションを付けてコンテナを`run`コマンドを実行します。
+
+```text
+➜ docker run -it --rm ubuntu bash
+
+root@667339feb45d:/# exit
+exit
+
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
 
