@@ -322,7 +322,7 @@ Options:
 
 #### runコマンド
 
-`run`コマンドはDockerコンテナの構築と起動を同時に行うコマンドです。ubuntuのイメージを使って`run`コマンドを実行すると、デフォルトコマンド\(`bash`\)で指定したコマンドが実行されます。`-it`はコンテナの標準出力\(`-i`\)を開き、端末デバイスを確保するという意味のtty\(`-t`\)の略です。
+`run`コマンドはDockerコンテナの構築と起動を同時に行うコマンドです。試しにubuntuのイメージを使って`run`コマンドを実行します。デフォルトコマンド\(`bash`\)で指定したコマンドが実行されます。`-it`はコンテナの標準出力\(`-i`\)を開き、端末デバイスを確保するという意味のtty\(`-t`\)の略です。`run`コマンドはオプションが大量にあるので、いくつかをピックアップしてまとめておきます。
 
 ```text
 ➜ docker run -it ubuntu bash
@@ -358,5 +358,295 @@ exit
 
 ➜ docker ps -a
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+コンテナの起動にはバックグラウンドモード\(デタッチドモード\)とフォアグラウンドモードがあります。バックグラウンドモードの場合は`-d`オプションを付けます。コンテナの起動後、すぐにホストに戻ってきます。状況を確認すると`Up`のままなので、バックグラウンドで起動していることがわかります。
+
+```text
+➜ docker run -it -d ubuntu bash
+b381e59f3a2bbcf5af282315f08420d9c1171883de0955301c45c9465887ea58
+ 
+➜ docker ps 
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+b381e59f3a2b        ubuntu              "bash"              4 seconds ago       Up 3 seconds                            quizzical_jepsen
+```
+
+次はポート\(`-p`\)を指定してコンテナを起動します。Nginxのイメージを使ってコンテナを実行します。
+
+```text
+➜ docker run -p 12345:80 nginx
+Unable to find image 'nginx:latest' locally
+latest: Pulling from library/nginx
+8559a31e96f4: Pull complete 
+8d69e59170f7: Pull complete 
+3f9f1ec1d262: Pull complete 
+d1f5ff4f210d: Pull complete 
+1e22bfa8652e: Pull complete 
+Digest: sha256:21f32f6c08406306d822a0e6e8b7dc81f53f336570e852e25fbe1e3e3d0d0133
+Status: Downloaded newer image for nginx:latest
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+
+```
+
+コンテナを起動後、ポート12345を使ってブラウザからアクセスします。ホスト側のポート12345がコンテナのNginxのポート80に転送されるので、ブラウザからアクセスすることが可能です。他にもDNSサーバー、MACアドレス、ホスト名とIPアドレスを定義するなども可能。
+
+![](.gitbook/assets/sukurnshotto-2020-07-02-223703png.png)
+
+オプションは下記の通り用意されています・・・。
+
+```text
+➜ docker run --help
+
+Usage:	docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+
+Run a command in a new container
+
+Options:
+      --add-host list                  Add a custom host-to-IP mapping (host:ip)
+  -a, --attach list                    Attach to STDIN, STDOUT or STDERR
+      --blkio-weight uint16            Block IO (relative weight), between 10 and 1000, or 0 to disable (default 0)
+      --blkio-weight-device list       Block IO weight (relative device weight) (default [])
+      --cap-add list                   Add Linux capabilities
+      --cap-drop list                  Drop Linux capabilities
+      --cgroup-parent string           Optional parent cgroup for the container
+      --cidfile string                 Write the container ID to the file
+      --cpu-period int                 Limit CPU CFS (Completely Fair Scheduler) period
+      --cpu-quota int                  Limit CPU CFS (Completely Fair Scheduler) quota
+      --cpu-rt-period int              Limit CPU real-time period in microseconds
+      --cpu-rt-runtime int             Limit CPU real-time runtime in microseconds
+  -c, --cpu-shares int                 CPU shares (relative weight)
+      --cpus decimal                   Number of CPUs
+      --cpuset-cpus string             CPUs in which to allow execution (0-3, 0,1)
+      --cpuset-mems string             MEMs in which to allow execution (0-3, 0,1)
+  -d, --detach                         Run container in background and print container ID
+      --detach-keys string             Override the key sequence for detaching a container
+      --device list                    Add a host device to the container
+      --device-cgroup-rule list        Add a rule to the cgroup allowed devices list
+      --device-read-bps list           Limit read rate (bytes per second) from a device (default [])
+      --device-read-iops list          Limit read rate (IO per second) from a device (default [])
+      --device-write-bps list          Limit write rate (bytes per second) to a device (default [])
+      --device-write-iops list         Limit write rate (IO per second) to a device (default [])
+      --disable-content-trust          Skip image verification (default true)
+      --dns list                       Set custom DNS servers
+      --dns-option list                Set DNS options
+      --dns-search list                Set custom DNS search domains
+      --domainname string              Container NIS domain name
+      --entrypoint string              Overwrite the default ENTRYPOINT of the image
+  -e, --env list                       Set environment variables
+      --env-file list                  Read in a file of environment variables
+      --expose list                    Expose a port or a range of ports
+      --gpus gpu-request               GPU devices to add to the container ('all' to pass all GPUs)
+      --group-add list                 Add additional groups to join
+      --health-cmd string              Command to run to check health
+      --health-interval duration       Time between running the check (ms|s|m|h) (default 0s)
+      --health-retries int             Consecutive failures needed to report unhealthy
+      --health-start-period duration   Start period for the container to initialize before starting health-retries countdown (ms|s|m|h)
+                                       (default 0s)
+      --health-timeout duration        Maximum time to allow one check to run (ms|s|m|h) (default 0s)
+      --help                           Print usage
+  -h, --hostname string                Container host name
+      --init                           Run an init inside the container that forwards signals and reaps processes
+  -i, --interactive                    Keep STDIN open even if not attached
+      --ip string                      IPv4 address (e.g., 172.30.100.104)
+      --ip6 string                     IPv6 address (e.g., 2001:db8::33)
+      --ipc string                     IPC mode to use
+      --isolation string               Container isolation technology
+      --kernel-memory bytes            Kernel memory limit
+  -l, --label list                     Set meta data on a container
+      --label-file list                Read in a line delimited file of labels
+      --link list                      Add link to another container
+      --link-local-ip list             Container IPv4/IPv6 link-local addresses
+      --log-driver string              Logging driver for the container
+      --log-opt list                   Log driver options
+      --mac-address string             Container MAC address (e.g., 92:d0:c6:0a:29:33)
+  -m, --memory bytes                   Memory limit
+      --memory-reservation bytes       Memory soft limit
+      --memory-swap bytes              Swap limit equal to memory plus swap: '-1' to enable unlimited swap
+      --memory-swappiness int          Tune container memory swappiness (0 to 100) (default -1)
+      --mount mount                    Attach a filesystem mount to the container
+      --name string                    Assign a name to the container
+      --network network                Connect a container to a network
+      --network-alias list             Add network-scoped alias for the container
+      --no-healthcheck                 Disable any container-specified HEALTHCHECK
+      --oom-kill-disable               Disable OOM Killer
+      --oom-score-adj int              Tune host's OOM preferences (-1000 to 1000)
+      --pid string                     PID namespace to use
+      --pids-limit int                 Tune container pids limit (set -1 for unlimited)
+      --privileged                     Give extended privileges to this container
+  -p, --publish list                   Publish a container's port(s) to the host
+  -P, --publish-all                    Publish all exposed ports to random ports
+      --read-only                      Mount the container's root filesystem as read only
+      --restart string                 Restart policy to apply when a container exits (default "no")
+      --rm                             Automatically remove the container when it exits
+      --runtime string                 Runtime to use for this container
+      --security-opt list              Security Options
+      --shm-size bytes                 Size of /dev/shm
+      --sig-proxy                      Proxy received signals to the process (default true)
+      --stop-signal string             Signal to stop a container (default "SIGTERM")
+      --stop-timeout int               Timeout (in seconds) to stop a container
+      --storage-opt list               Storage driver options for the container
+      --sysctl map                     Sysctl options (default map[])
+      --tmpfs list                     Mount a tmpfs directory
+  -t, --tty                            Allocate a pseudo-TTY
+      --ulimit ulimit                  Ulimit options (default [])
+  -u, --user string                    Username or UID (format: <name|uid>[:<group|gid>])
+      --userns string                  User namespace to use
+      --uts string                     UTS namespace to use
+  -v, --volume list                    Bind mount a volume
+      --volume-driver string           Optional volume driver for the container
+      --volumes-from list              Mount volumes from the specified container(s)
+  -w, --workdir string                 Working directory inside the container
+
+```
+
+#### start/stopコマンド
+
+`start/stop`コマンドはDockerコンテナの起動と停止を行うコマンドです。さきほどのNginxのコンテナを`start`コマンドで起動して、`stop`コマンドで停止します。
+
+```text
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+3c035d99e89a        nginx               "/docker-entrypoint.…"   16 minutes ago      Exited (0) 14 minutes ago                       beautiful_lederberg
+ 
+➜ docker start 3c035d99e89a
+3c035d99e89a
+
+➜ docker ps 
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                   NAMES
+3c035d99e89a        nginx               "/docker-entrypoint.…"   17 minutes ago      Up 2 seconds        0.0.0.0:12345->80/tcp   beautiful_lederberg
+
+➜ docker stop 3c035d99e89a
+3c035d99e89a
+~ 
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                     PORTS               NAMES
+3c035d99e89a        nginx               "/docker-entrypoint.…"   17 minutes ago      Exited (0) 2 seconds ago                       beautiful_lederberg
+```
+
+オプションは下記の通り用意されています。
+
+```text
+➜ docker start --help
+
+Usage:	docker start [OPTIONS] CONTAINER [CONTAINER...]
+
+Start one or more stopped containers
+
+Options:
+  -a, --attach               Attach STDOUT/STDERR and forward signals
+      --detach-keys string   Override the key sequence for detaching a container
+  -i, --interactive          Attach container's STDIN
+
+----------------------------------------------------------------
+
+➜ docker stop --help
+
+Usage:	docker stop [OPTIONS] CONTAINER [CONTAINER...]
+
+Stop one or more running containers
+
+Options:
+  -t, --time int   Seconds to wait for stop before killing it (default 10)
+```
+
+#### rmコマンド
+
+`rm`コマンドはDockerコンテナの削除を行うコマンドです。さきほどのNginxのコンテナを`rm`コマンドで削除します。
+
+```text
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                     PORTS               NAMES
+3c035d99e89a        nginx               "/docker-entrypoint.…"   20 minutes ago      Exited (0) 2 minutes ago                       beautiful_lederberg
+ 
+➜ docker rm 3c035d99e89a
+3c035d99e89a
+ 
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+オプションは下記の通りです。
+
+```text
+➜ docker rm --help
+
+Usage:	docker rm [OPTIONS] CONTAINER [CONTAINER...]
+
+Remove one or more containers
+
+Options:
+  -f, --force     Force the removal of a running container (uses SIGKILL)
+  -l, --link      Remove the specified link
+  -v, --volumes   Remove anonymous volumes associated with the container
+```
+
+#### restart/exec/attachコマンド
+
+`restart`コマンドは停止しているコンテナを再起動するコマンドです。そして、`STATUS`は`Up`の状態のコンテナに入る場合は`exec`か`attach`コマンドを利用します。`exec`はWebサーバーやDBサーバーなど、バックグラウンドモードで実行されているコンテナに入る場合、シェルが動作していないと`attach`コマンドでは、コマンドを受け付けることができないため、そのような場合に利用します。
+
+また、`control + p + q`でコンテナからデタッチできます。その場合、`STATUS`は`Up`の状態でプロセスは残ります。
+
+```text
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                    PORTS               NAMES
+27baf0c8814d        ubuntu              "bash"              4 seconds ago       Exited (0) 1 second ago                       sharp_shirley
+ 
+➜ docker restart 27baf0c8814d
+27baf0c8814d
+ 
+➜ docker ps 
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+27baf0c8814d        ubuntu              "bash"              25 seconds ago      Up 1 second                             sharp_shirley
+ 
+➜ docker exec -it 27baf0c8814d bash
+root@27baf0c8814d:/# read escape sequence 
+【control + p + q】を押すとデタッチできる
+
+➜ docker ps 
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
+27baf0c8814d        ubuntu              "bash"              About a minute ago   Up About a minute                       sharp_shirley
+
+➜ docker attach 27baf0c8814d
+root@27baf0c8814d:/# exit
+exit
+ 
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+27baf0c8814d        ubuntu              "bash"              3 minutes ago       Exited (0) 3 seconds ago                       sharp_shirley
+```
+
+例えばNginx
+
+```text
+➜ docker run -p 12345:80 -d nginx
+ff989d27abef24a1237cedae5b6b32449faf10cc9cb3fa20d1032b4d015623f6
+ 
+➜ docker ps 
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                   NAMES
+ff989d27abef        nginx               "/docker-entrypoint.…"   7 seconds ago       Up 6 seconds        0.0.0.0:12345->80/tcp   elegant_taussig
+ 
+➜ docker attach ff989d27abef
+# コマンドを受け付けない
+
+➜ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+ff989d27abef        nginx               "/docker-entrypoint.…"   30 seconds ago      Exited (0) 15 seconds ago                       elegant_taussig
+ 
+➜ docker run -p 12345:80 -d nginx
+55ca410edd7349d5ba16edb5970fd76eb741a016e6f31ee486821cad0fd953ee
+
+➜ docker ps 
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                   NAMES
+55ca410edd73        nginx               "/docker-entrypoint.…"   21 seconds ago      Up 21 seconds       0.0.0.0:12345->80/tcp   awesome_clarke
+ 
+➜ docker exec -it 55ca410edd73 bash
+root@55ca410edd73:/# exit
+exit
 ```
 
