@@ -84,7 +84,7 @@ d13bf203e905: Pull complete
 4039240d2e0b: Pull complete 
 ```
 
-Dockerファイルからイメージを構成する場合、特定のDockerインストラクションごとにイメージレイヤーを構築しながらイメージを構成します。例えばRUNコマンドはイメージレイヤーを追加するコマンドです。下記のようにDockerイメージを書き換えて、
+Dockerファイルからイメージを構成する場合、特定のDockerインストラクションごとにイメージレイヤーを構築しながらイメージを構成します。例えば`RUN`コマンドはイメージレイヤーを追加するコマンドです。下記のようにDockerイメージを書き換えて、
 
 ```text
 ➜ cat Dockerfile 
@@ -95,7 +95,7 @@ RUN apt-get update
 RUN apt-get install -y nginx
 ```
 
-イメージビルドしてみるとわかります。`Running in`の部分でイメージレイヤーが構成されています。
+イメージビルドしてみるとわかります。`-y`はインストール中の選択肢で`yes`を選択するオプションです。`Running in`の部分でイメージレイヤーが構成されています。
 
 ```text
 ~/Desktop/docker_context 
