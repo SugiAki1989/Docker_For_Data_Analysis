@@ -264,14 +264,14 @@ sample.txt
 
 #### ADDコマンド
 
-`ADD`コマンドは、ビルドコンテキストにあるデータをイメージビルドの際に、コンテナの中にコピーするコマンドです。ここではビルドコンテキスト内に、`data_in_host`というテキストファイルを保存して、これをコンテナに持っていきます。
+`ADD`コマンドは、ビルドコンテキストにあるデータをイメージビルドの際に、tarなどの圧縮ファイルをコンテナで解凍して利用する場合になどに利用します。ここではビルドコンテキスト内に、`data_in_host`というテキストファイルを保存して、これをコンテナに持っていきます。
 
 ```text
 ➜ touch data_in_host
 ➜ echo "Data in Host" > data_in_host 
 ```
 
-Dockerファイルは下記のように記述します。
+Dockerファイルは下記のように記述します。`ADD <ホストのファイルパス> <コンテナのファイルパス>`です。この際に、コンテナに指定したディレクトリがない場合、作成してくれます。
 
 ```text
 $ cat Dockerfile
@@ -281,6 +281,8 @@ ADD data_in_host /add_dir/
 
 CMD ["/bin/bash"]
 ```
+
+イメージビルドしてコンテナの中で確認すると、`data_in_host`が`add_dir`に保存されていることがわかります。
 
 ```text
 ➜ docker build -t build_ubuntu ~/Desktop/docker_context/
@@ -297,4 +299,6 @@ root@6e66629a84b9:/# cd add_dir/
 root@6e66629a84b9:/add_dir# cat data_in_host 
 Data in Host
 ```
+
+`ADD`コマンドと似たコマンドで`COPY`コマンドがありますが、この例のようにコピーするだけの場合は、`COPY`コマンドを利用します。
 

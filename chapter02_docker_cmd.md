@@ -666,3 +666,60 @@ root@55ca410edd73:/# exit
 exit
 ```
 
+### Dockerコマンド~オプション~
+
+次はコンテナの起動の際に利用するコマンドを見ていきます。ここではホストとコンテナをつなぐ際に利用するオプションである`-v`、`-p`、`-u`の3つに焦点を当てます。
+
+#### -vオプション
+
+`-v`は、ホストとコンテナのディレクトリ\(ファイルシステム\)をマウントするために利用します。このオプションを利用することで、コンテナの中から、マウントしてしているホストのディレクトリを使うことができます。
+
+今回はホスト側のデスクトップに`mounted_dir_in_host`というディレクトリを作成し、この中にサンプルのPythonコード\(sample.py\)があったとします。これをコンテナ側の`mounted_dir_in_con`というディレクトリとをマウントさせることで、コンテナから利用できるようにします。
+
+```text
+➜ cd ~/Desktop/
+
+➜ mkdir mounted_dir_in_host
+
+➜ cd mounted_dir_in_host
+
+➜ touch sample.py 
+
+➜ echo "print('Hello World')" > sample.py 
+```
+
+Dockerファイルにはコンテナでマウントするディレクトリを作成します。
+
+```text
+➜ cat ~/Desktop/Dockerfile
+FROM ubuntu:latest
+
+RUN mkdir mounted_dir_in_con
+
+CMD ["/bin/bash"]
+```
+
+イメージビルドして、コンテナを起動する際にディレクトリを`-v`で指定して起動することでマウントできます。
+
+```text
+➜ docker build -t build_ubuntu ~/Desktop/docker_context/
+Sending build context to Docker daemon  3.072kB
+【略】
+Successfully built 49fe8e37b25f
+Successfully tagged build_ubuntu:latest
+
+➜ docker run -it --rm -v ~/Desktop/mounted_dir_in_host:/mounted_dir_in_con build_ubuntu bash
+root@d72b0276081f:/# ls
+bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  mounted_dir_in_con  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+
+root@d72b0276081f:/# cd mounted_dir_in_con
+
+root@d72b0276081f:/mounted_dir_in_con# ls
+sample.py
+
+root@d72b0276081f:/mounted_dir_in_con# cat sample.py 
+print('Hello World')
+```
+
+
+
