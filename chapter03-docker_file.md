@@ -181,6 +181,7 @@ Successfully tagged build_ubuntu:2.0
 下記のように記述すれば、Dockerイメージを生成する際に、`apt-get update`、`apt-get install nginx`、`apt-get install curl`が実行されます。
 
 ```text
+$ cat Dockerfile
 RUN apt-get update
 
 RUN apt-get install -y nginx
@@ -209,6 +210,7 @@ CMD ["/bin/bash"]
 `ENV`コマンドは環境変数を設定するコマンドです。`ENV`コマンドで環境変数を指定しておけばコンテナを起動した際に環境変数を設定した状態で起動します。環境変数の指定の仕方はキーバリュー型で下記のように記述できます。
 
 ```text
+$ cat Dockerfile
 FROM ubuntu:latest
 
 ENV key1 "val1"
@@ -237,6 +239,7 @@ key1=val1
 `WORKDIR`コマンドはコマンドを実行するディレクトリを指定するコマンドです。`WORKDIR`コマンドで作業ディレクトリを指定して、テキストファイルをDockerファイルから作ってみます。
 
 ```text
+$ cat Dockerfile
 FROM ubuntu:latest
 
 WORKDIR /sample
@@ -257,5 +260,41 @@ Successfully tagged build_ubuntu:latest
 ➜ docker run -it --rm build_ubuntu bash
 root@af616c59e1b5:/sample# ls  
 sample.txt
+```
+
+#### ADDコマンド
+
+`ADD`コマンドは、ビルドコンテキストにあるデータをイメージビルドの際に、コンテナの中にコピーするコマンドです。ここではビルドコンテキスト内に、`data_in_host`というテキストファイルを保存して、これをコンテナに持っていきます。
+
+```text
+➜ touch data_in_host
+➜ echo "Data in Host" > data_in_host 
+```
+
+Dockerファイルは下記のように記述します。
+
+```text
+$ cat Dockerfile
+FROM ubuntu:latest
+
+ADD data_in_host /add_dir/
+
+CMD ["/bin/bash"]
+```
+
+```text
+➜ docker build -t build_ubuntu ~/Desktop/docker_context/
+【略】
+Successfully built fb8e25a8a40c
+Successfully tagged build_ubuntu:latest
+
+➜ docker run -it --rm build_ubuntu bash
+root@6e66629a84b9:/# ls
+add_dir  bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+
+root@6e66629a84b9:/# cd add_dir/
+
+root@6e66629a84b9:/add_dir# cat data_in_host 
+Data in Host
 ```
 
