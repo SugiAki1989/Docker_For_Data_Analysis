@@ -4,7 +4,7 @@
 
 ここではDockerファイルの基本的な内容と記述方法をまとめます。Dockerでは、インフラ構成＝コンテナの構成をDockerインストラクションに従って、Dockerファイルに記述することで、イメージを生成し、コンテナを構築します。Dockerファイルの[ベストプラクティス](http://docs.docker.jp/engine/userguide/eng-image/dockerfile_best-practice.html)はこちら。
 
-### Dockerインストラクション
+### Dockerファイル
 
 Dockerファイルは下記のDockerインストラクションによって記述されます。Dockerファイルはインフラ構成を記述するもので、ベースになるOSのイメージ、コンテナ内のコマンド、環境変数の設定などをDockerインストラクションなどを記述します。
 
@@ -142,7 +142,7 @@ RUN apt-get install -y nginx
 RUN apt-get install -y curl
 ```
 
-イメージビルドしてみます。`Using cache`と表示され、先程インストールしていたものはキャッシュが利用されインストールがすぐに終了します。
+イメージビルドしてみます。`Using cache`と表示され、先程インストールしていたものはキャッシュが利用されインストールがすぐに終了します。Dockerファイルを作成する際はこのキャッシュを使いながら作成することで効率化を図ることができます。
 
 ```text
 ➜ docker build -t build_ubuntu:2.0 ~/Desktop/docker_context/
@@ -169,4 +169,42 @@ Removing intermediate container 8de1bda56284
 Successfully built ccf5101224bc
 Successfully tagged build_ubuntu:2.0
 ```
+
+### Dockerインストラクション
+
+冒頭に紹介したDockerインストラクションの各役割について、基本的なコマンドについて、もう少し詳しくまとめていきます。
+
+#### RUNコマンド
+
+まずは`RUN`コマンドからです。`RUN`コマンドはDockerイメージを生成する際に実行したいコマンドがある場合に記述します。
+
+下記のように記述すれば、Dockerイメージを生成する際に、`apt-get update`、`apt-get install nginx`、`apt-get install curl`が実行されます。
+
+```text
+RUN apt-get update
+
+RUN apt-get install -y nginx
+
+RUN apt-get install -y curl
+```
+
+このままだと、Dockerファイルを構築する際に3つのイメージレイヤがRUNごとに生成されるので、まとめて記述します。
+
+```text
+RUN apt-get update && apt-get install -y \
+    nginx \
+    curl
+```
+
+#### CMDコマンド
+
+`CMD`コマンドはDockerイメージを生成したあとに、コンテナ内でコマンドを実行する場合に利用します。例えばubuntuのイメージのDockerファイルの最後には、コンテナに入るとbashが起動するように設定されています。
+
+```text
+CMD ["/bin/bash"]
+```
+
+
+
+
 
