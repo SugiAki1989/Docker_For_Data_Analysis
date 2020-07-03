@@ -204,7 +204,58 @@ RUN apt-get update && apt-get install -y \
 CMD ["/bin/bash"]
 ```
 
+#### ENVコマンド
 
+`ENV`コマンドは環境変数を設定するコマンドです。`ENV`コマンドで環境変数を指定しておけばコンテナを起動した際に環境変数を設定した状態で起動します。環境変数の指定の仕方はキーバリュー型で下記のように記述できます。
 
+```text
+FROM ubuntu:latest
 
+ENV key1 "val1"
+ENV key2=val2
+
+CMD ["/bin/bash"]
+```
+
+イメージビルドしてコンテナを起動してみます。コンテナの環境変数にDockerファイルで指定した環境変数が指定されていることがわかります。
+
+```text
+➜ docker build -t build_ubuntu ~/Desktop/docker_context/
+Sending build context to Docker daemon  2.048kB
+【略】
+Successfully built 6ce0d7130333
+Successfully tagged build_ubuntu:latest
+
+➜ docker run -it --rm build_ubuntu bash
+root@fefd4c983663:/# env | grep "key"
+key2=val2
+key1=val1
+```
+
+#### WORKDIRコマンド
+
+`WORKDIR`コマンドはコマンドを実行するディレクトリを指定するコマンドです。`WORKDIR`コマンドで作業ディレクトリを指定して、テキストファイルをDockerファイルから作ってみます。
+
+```text
+FROM ubuntu:latest
+
+WORKDIR /sample
+
+RUN touch sample.txt
+
+CMD ["/bin/bash"]
+```
+
+イメージビルドしていきます。コンテナを起動すると`WORKDIR`コマンドで指定したディレクトリにアクセスすることになります。テキストファイルも問題なく生成されていることが確認できます。
+
+```text
+➜ docker build -t build_ubuntu ~/Desktop/docker_context/
+【略】
+Successfully built db587f73412b
+Successfully tagged build_ubuntu:latest
+
+➜ docker run -it --rm build_ubuntu bash
+root@af616c59e1b5:/sample# ls  
+sample.txt
+```
 
