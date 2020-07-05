@@ -328,8 +328,9 @@ MySQLコンテナを起動した際に、デフォルトでデータベースと
 `mysql_docker`というディレクトリの中身はこのようになっています。
 
 ```text
-➜ tree .
-.
+➜ tree mysql_docker
+
+mysql_docker
 ├── docker-compose.yml
 ├── data
 └── init
@@ -575,4 +576,66 @@ mysql>  select * from knock.product;
 +------------+-------------------+--------------------+-------------------+------------+-----------+----+
 3 rows in set (0.02 sec)
 ```
+
+### MySQLコンテナのコンフィグファイルを設定する
+
+MySQL のコンフィグファイルは `/etc/mysql/my.cnf` にあります。しかし、 `/etc/mysql/conf.d` や `/etc/mysql/mysql.conf.d` のような追加のディレクトリが含まれている可能性があります。設定が一致していない場合、コンテナが起動しません。
+
+コンフィグファイルを調整する場合、`docker-compose.yml`にファイル先を記載します。ディレクトリ構造はこうなっています。
+
+```text
+➜ tree mysql_docker
+
+mysql_docker
+├── docker-compose.yml
+├── data
+├── config
+│   └── config-file.cnf
+└── init
+    └── init.sql
+```
+
+`docker-compose.yml`は下記の通りです。
+
+```text
+➜ cat docker-compose.yml 
+version: "3"
+    
+services:
+  mysql:
+    image: mysql:8.0.20
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - ./data:/var/lib/mysql
+      - ./config:/etc/mysql/conf.d
+    ports:
+      - 13306:3306
+```
+
+参考までに`config-file.cnf`は下記のとおりです。
+
+```text
+➜ cat config/config-file.cnf
+[mysqld]
+character-set-server = utf8mb4
+collation-server = utf8mb4_bin
+default-authentication-plugin = mysql_native_password
+
+[mysql]
+default-character-set = utf8mb4
+
+[client]
+default-character-set = utf8mb4~/Desktop/mysql_docker 
+```
+
+この状態でコンテナを起動すればコンフィグファイルが反映されます。
+
+```text
+➜ docker-compose up -d
+```
+
+
 
