@@ -314,3 +314,27 @@ mysql> SELECT * FROM sample;
 3 rows in set (0.01 sec)
 ```
 
+### MySQLコンテナにデフォルトでデータを格納する
+
+MySQLコンテナを起動した際に、デフォルトでデータベースとテーブルが保存されている状態でコンテナを起動する方法をまとめます。これを実現するには`docker-compose`でコンテナを起動します。`docker-compose`については、また別のチャプターで扱います。簡単に説明すると、コンテナを複数起動する場合などに、`docker-compose.yml`に起動時の設定をまとめて記述しておき、そのファイルをもとにコンテナを起動できます。
+
+まずは、デスクトップに`mysql_docker`というディレクトリを作成し、そこに必要なファイルを保存していきます。
+
+```text
+→ mkdir mysql_docker
+→ cd mysql_docker
+```
+
+`mysql_docker`というディレクトリの中身はこのようになっています。
+
+```text
+➜ tree .
+.
+├── docker-compose.yml
+├── data
+└── init
+    └── init.sql
+```
+
+起動時の設定をまとめて記述しておける`docker-compose.yml`の中身は下記の通りです。
+
