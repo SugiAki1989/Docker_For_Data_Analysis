@@ -6,7 +6,7 @@
 
 ### MySQLコンテナの構築
 
-MySQLコンテナを構築するには下記のコマンドを実行すれば、MySQLコンテナを起動できます。[MySQLのイメージ](https://hub.docker.com/_/mysql)はDocker Hubから取得します。`latest`なので、MySQL8のイメージになります。ホスト側のポートの設定は、13306にしています。これは私のホストの実行環境で、MySQLを3306で使用しているためです。`MYSQL_ROOT_PASSWORD`はrootユーザーのパスワードです。
+MySQLコンテナを構築するには下記のコマンドを実行すれば、MySQLコンテナを起動できます。[MySQLのイメージ](https://hub.docker.com/_/mysql)はDocker Hubから取得します。`latest`なので、MySQL8のイメージになります。ホスト側のポートの設定は、`13306`にしています。これは私のホストの実行環境で、MySQLを`3306`で使用しているためです。`MYSQL_ROOT_PASSWORD`はrootユーザーのパスワードです。
 
 ```text
 → docker run -e MYSQL_ROOT_PASSWORD=pass -p 13306:3306 -d mysql:latest
