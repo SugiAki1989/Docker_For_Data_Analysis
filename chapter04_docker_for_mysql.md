@@ -637,5 +637,149 @@ default-character-set = utf8mb4~/Desktop/mysql_docker
 ➜ docker-compose up -d
 ```
 
+### 補足：LOAD DATA LOCAL INFILEでインサートしたい場合
 
+MySQLコンテナにデフォルトでデータを格納する方法は先程まとめましたが、そこそこ大きいデータをデフォルトでインサートしようとするとバルクインサートでも少し時間がかかります。そのような場合には`LOAD DATA LOCAL INFILE`コマンドでインサートしたくなります。その方法をDockerで実現する方法について、ここではまとめておきます。
+
+ファルダ構成は下記のとおりです。`20_data_load.sh`で`LOAD DATA LOCAL INFILE`コマンドを実行し、インサートしています。ここでは、`test_db`の中の`test_tbl1`と`test_tbl2`に対して、`data1.csv`と`data2.csv`をコンテナ起動時にインサートするような流れを想定しています。
+
+```text
+.
+├── docker-compose.yml
+└─── mysql
+    ├── init
+    │   ├── 10_ddl.sql
+    │   ├── 20_data_load.sh # LOAD DATA LOCAL INFILEを実行するShellスクリプト
+    │   ├── data1.csv
+    │   └── data2.csv
+    └── var_lib_mysql # MySQLのデータを永続化するディレクトリ
+```
+
+`docker-compose.yml`に大きな変更はありません。
+
+```text
+➜ cat docker-compose.yml 
+
+version: '3'
+services:
+  mysql:
+    image: mysql:8.0.20
+    restart: always
+    environment:
+      MYSQL_DATABASE: test_db
+      MYSQL_ROOT_PASSWORD: Pass
+    ports:
+      - "13306:3306"
+    volumes:
+      - ~/Desktop/mysql/var_lib_mysql:/var/lib/mysql
+      - ~/Desktop/mysql/init:/docker-entrypoint-initdb.d
+```
+
+`10_ddl.sql`の中身はこちらです。テーブルを作成するSQLの頭に`set global local_infile = 1;`を設定しています。MySQLの設定として、デフォルトでは、`local_infile`システム変数がOFFなのでONにします。
+
+```text
+➜ cat ~/Desktop/mysql/init/10_ddl.sql 
+
+set global local_infile = 1;
+
+create table if not exists test_tbl1(
+  `code` char(3) not null,
+  `name` varchar(80) not null,
+  primary key(`code`)
+) engine=innodb default charset=utf8;
+
+create table if not exists test_tbl2(
+  `code` char(3) not null,
+  `age` int not null,
+  primary key(`code`)
+) engine=innodb default charset=utf8;
+```
+
+`20_data_load.sh`の中身はこちらです。クライアントから接続する際に`--local-infile=1`を指定してコマンドを実行します。
+
+```text
+➜ cat ~/Desktop/mysql/init/20_data_load.sh 
+
+mysql -uroot -pPass --local-infile=1 test_db -e "LOAD DATA LOCAL INFILE '/docker-entrypoint-initdb.d/data1.csv' INTO TABLE test_tbl1 FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 1 LINES"
+
+mysql -uroot -pPass --local-infile=1 test_db -e "LOAD DATA LOCAL INFILE '/docker-entrypoint-initdb.d/data2.csv' INTO TABLE test_tbl2 FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 1 LINES"
+```
+
+csvの中身はこちらです。
+
+```text
+➜ cat ~/Desktop/mysql/init/data1.csv 
+
+code,name
+"001","Tanaka"
+"002","Sato"
+"003","Suzuki"
+"004","Takahashi"
+
+➜ cat ~/Desktop/mysql/init/data2.csv 
+
+code,age
+"001",10
+"002",20
+"003",30
+"004",40
+```
+
+それではコンテナを立ち上げ、MySQLの中にアクセスします。
+
+```text
+➜ docker-compose up -d
+Creating desktop_mysql_1 ... done
+
+➜ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                NAMES
+ce0bcf0f20db        mysql:8.0.20        "docker-entrypoint.s…"   4 seconds ago       Up 3 seconds        33060/tcp, 0.0.0.0:13306->3306/tcp   desktop_mysql_1
+
+➜ docker exec -it ce0bcf0f20db bash
+root@ce0bcf0f20db:/# mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+Server version: 8.0.20 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+```
+
+SQLを発行してデータがインサートされているか確認します。想定した通り、`test_db`の中の`test_tbl1`と`test_tbl2`に対して、`data1.csv`と`data2.csv`がインサートされています。
+
+```text
+mysql> use test_db
+
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+Database changed
+
+mysql> select * from test_tbl1;
++------+-----------+
+| code | name      |
++------+-----------+
+| 001  | Tanaka    |
+| 002  | Sato      |
+| 003  | Suzuki    |
+| 004  | Takahashi |
++------+-----------+
+4 rows in set (0.01 sec)
+
+mysql> select * from test_tbl2;
++------+-----+
+| code | age |
++------+-----+
+| 001  |  10 |
+| 002  |  20 |
+| 003  |  30 |
+| 004  |  40 |
++------+-----+
+4 rows in set (0.01 sec)
+```
 
