@@ -157,8 +157,35 @@ df2
 1 Data From Host     
 2 Data From Container
 
-write_csv(df2, "~/R_mounted_dir/sample2.csv")
+write_csv(df2, "~/R_mounted_dir/test2.csv")
 ```
 
 ではホストからマウント先のディレクトリに`sample2.csv`があるか確認します。
+
+```text
+➜ ls
+test2.csv	test.csv
+
+➜ cat test2.csv 
+col
+Data From Host
+Data From Container
+```
+
+問題なくホストとコンテンでデータのやり取りができています。
+
+### パッケージをインストールする
+
+ここまでは`rocker/tidyverse`イメージを使ってRStudio Serverの環境構築を行いました。しかし、これで分析ができるかというと難しいかもしれません。なぜなら、追加のパッケージをインストールする必要があるためです。もちろん、コンテナを起動した中でパッケージをインストールすれば利用できますが、コンテナを削除するとパッケージごと削除されます。
+
+これらの問題は、`rocker/tidyverse`イメージをベースにDockerファイルを記述することで解決されます。パッケージのインストール方法はCentOSにRStudio Serverの環境構築を行った際にやっているので問題ないかと思います。
+
+```text
+FROM rocker/verse:latest
+
+
+RUN R -e 'install.packages('glmnet', repos = "https://cran.ism.ac.jp/")'
+```
+
+ あとはこのイメージを使ってイメージビルドして、コンテナを起動すれば、追加のパッケージがインストールされた状態で、RStudio Serverを利用することが可能です。
 
