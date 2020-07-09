@@ -91,11 +91,11 @@ The following objects are masked from ‘package:base’:
     intersect, setdiff, setequal, union
 ```
 
-次は、`rocker/tidyverse`イメージを使ってRstudio Serverの環境構築をおこないます。
+次は、`rocker/tidyverse`イメージを使ってRstudio Serverの環境構築をおこないます。他のイメージとしては、 `r-ver`、`rstudio`、`tidyverse`、`verse`、`geospatial`、`shiny`、`binder`などが利用可能です。
 
 ### `rocker/tidyverse`イメージ
 
-使い方はすごく簡単です。Dockerファイルも書く必要はありませんし、下記のコマンドを実行すればOKです。`--rm`はコンテナ終了時にコンテナを削除するオプションです。
+使い方はすごく簡単です。Dockerファイルも書く必要はありませんし、下記のコマンドを実行すればOKです。`--rm`はコンテナ終了時にコンテナを削除するオプションです。`-d`をつけてデタッチドモードで起動してもOKです。
 
 ```text
 → docker run --rm -p 8787:8787 rocker/verse
