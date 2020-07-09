@@ -95,7 +95,70 @@ The following objects are masked from ‘package:base’:
 
 ### `rocker/tidyverse`イメージ
 
+使い方はすごく簡単です。Dockerファイルも書く必要はありませんし、下記のコマンドを実行すればOKです。`--rm`はコンテナ終了時にコンテナを削除するオプションです。
 
+```text
+→ docker run --rm -p 8787:8787 rocker/verse
+```
 
+ローカルにインストールされていないコンテナなので、Docker Hubからイメージをを検索して、ローカルにインストールします。RStudio Serverのログイン情報については、ユーザー名とパスワードはいずれも`rstudio`です。コンソールにDoneと表示されれば、[http://localhost:8787/](http://localhost:8787/)にアクセスします。
 
+![](.gitbook/assets/sukurnshotto-2020-07-10-03709png.png)
+
+ログインに成功したら、RStudio Serverが利用可能になります。`rocker/tidyverse`イメージなので、もちろん`tidyverse`も利用可能ですし、2020年7月現在ではR4.0が利用できます。
+
+![](.gitbook/assets/sukurnshotto-2020-07-10-03917png.png)
+
+MySQLの環境構築でもやりましたが、こちらもコンテナの永続化がこの設定だとできません。volumeをコンテナにリンクして、データへのアクセスとファイルの保存を可能にします。ここではデスクトップの`R_mounted_dir`をマウント先に設定し、通信ができるかテストデータも作成しておます。
+
+```text
+➜ cd ~/Desktop/
+
+➜ mkdir R_mounted_dir
+
+➜ cd R_mounted_dir/
+
+➜ touch test.csv
+➜ cat test.csv 
+col
+"Data From Host"
+```
+
+こちらのマウント先を指定してコンテナを起動します。
+
+```text
+docker run --rm -p 8787:8787 -v ~/Desktop/R_mounted_dir:/home/rstudio/R_mounted_dir rocker/verse
+```
+
+RStudio Serverのターミナルからフォルダとサンプルのデータがあるのか確認します。
+
+![](.gitbook/assets/sukurnshotto-2020-07-10-04845png.png)
+
+では、このサンプルデータを読み込んで、修正してマウント先のフォルダに保存します。
+
+```text
+df <- read_csv("~/R_mounted_dir/test.csv")
+Parsed with column specification:
+cols(
+  col = col_character()
+)
+
+df
+# A tibble: 1 x 1
+  col           
+  <chr>         
+1 Data From Host
+
+df2 <- df %>% bind_rows(tibble(col = "Data From Container"))
+df2
+# A tibble: 2 x 1
+  col                
+  <chr>              
+1 Data From Host     
+2 Data From Container
+
+write_csv(df2, "~/R_mounted_dir/sample2.csv")
+```
+
+ではホストからマウント先のディレクトリに`sample2.csv`があるか確認します。
 
