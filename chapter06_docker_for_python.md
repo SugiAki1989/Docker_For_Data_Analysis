@@ -104,3 +104,10 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 
 ![](.gitbook/assets/sukurnshotto-2020-07-11-150931png.png)
 
+使い終わったらコンテナを停止しておきます。
+
+```text
+➜ docker stop 76fc63757065
+76fc63757065
+```
+
