@@ -1,4 +1,4 @@
-# Chapter07 Docker Compose
+# Chapter07 Docker For R × MySQL
 
 ### はじめに
 

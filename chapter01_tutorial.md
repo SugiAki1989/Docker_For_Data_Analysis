@@ -1,4 +1,4 @@
-# Chapter01 Dockerことはじめ
+# Chapter01 What is Docker?
 
 ### はじめに
 
