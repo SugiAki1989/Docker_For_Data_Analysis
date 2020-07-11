@@ -7,5 +7,5 @@
 * [Chapter04 Docker For MySQL](chapter04_docker_for_mysql.md)
 * [Chapter05 Docker For R](chapter05_docker_for_r.md)
 * [Chapter06 Docker For Python](chapter06_docker_for_python.md)
-* [Chapter0\* Docker Compose](chapter05_docker_compose.md)
+* [Chapter07 Docker Compose](chapter07_docker_compose.md)
 
