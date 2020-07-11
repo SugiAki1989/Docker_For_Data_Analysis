@@ -183,7 +183,6 @@ Data From Container
 ```text
 FROM rocker/verse:latest
 
-
 RUN R -e 'install.packages('glmnet', repos = "https://cran.ism.ac.jp/")'
 ```
 

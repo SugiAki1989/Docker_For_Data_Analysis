@@ -1,7 +1,3 @@
----
-description: 'https://qiita.com/SLEAZOIDS/items/a2272b02e9a964596198'
----
-
 # Chapter06 Docker For Python
 
 ### はじめに
