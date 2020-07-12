@@ -19,8 +19,8 @@ data_env
 │   │   ├── data1.csv
 │   │   └── data2.csv
 │   └── var_lib_mysql
-│       ├── #ib_16384_0.dblwr
-│       ├── #ib_16384_1.dblwr
+│       ├── #ib_16384_0.dblwr　#コンテナ起動時に生成されるMySQLファイル
+│       ├── #ib_16384_1.dblwr　#コンテナ起動時に生成されるMySQLファイル
 【略】
 └── R
     ├── Dockerfile
