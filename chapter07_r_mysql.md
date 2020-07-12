@@ -417,3 +417,149 @@ Gatewayの値を取得したければ、下記のようにすれば取得でき�
 
 このように複数のコンテナを起動して、コンテナ間通信する場合にはネットワークの設定も必要なるので注意が必要ですね。
 
+### `docker-compose up`でコンテナを複数起動
+
+`docker-compose`でコンテナを複数起動する方法に変更する方法をまとめておきます。さきほどのディレクトリ`data_env`ディレクトリをコピーして`data_env2`ディレクトリを作成します。ディレクトリ構成は下記のとおりです。
+
+```text
+➜ tree .
+.
+├── Dockerfile.rstudio
+├── docker-compose.yml
+├── init
+│   ├── 10_ddl.sql
+│   ├── 20_data_load.sh
+│   ├── data1.csv
+│   └── data2.csv
+├── var_lib_mysql
+└── working_dir
+
+3 directories, 6 files
+```
+
+まずは各コンテナを通信するためのネットワーク`data_analysis_network`を作成します。
+
+```text
+➜ docker network create data_analysis_network
+d3af08f4815e2bd5f9ad52395dafbc6158acef2d0979f43fe5ec0c0046ba8784
+
+➜ docker network ls
+NETWORK ID          NAME                    DRIVER              SCOPE
+1a76981eca72        bridge                  bridge              local
+d3af08f4815e        data_analysis_network   bridge              local
+e963e0cf6ead        host                    host                local
+7ca5740cb687        mysql_default           bridge              local
+e6057ac87f12        none                    null                local
+a77d133853e6        python_default          bridge              local
+c1fc877b851e        r_default               bridge              local
+```
+
+コネクションを作成する際のアドレスを確認しておきます。
+
+```text
+➜ docker network inspect data_analysis_network | jq '.[0].IPAM.Config[0].Gateway'
+"172.22.0.1"
+```
+
+それでは`docker-compose.yml`を下記のように書き換えます。注意する点としては、各サービスの項目に`networks: - data_analysis_network`が追加されている点と、コンテナの通信を利用するための`networks`項目を最下部に追記した点です。
+
+```text
+version: '3'
+
+services:
+
+  mysql:
+    image: mysql:8.0.20
+    restart: always
+    environment:
+      MYSQL_DATABASE: test_db
+      MYSQL_ROOT_PASSWORD: Pass
+    ports:
+      - "13306:3306"
+    networks:
+      - data_analysis_network
+    volumes:
+      - ~/Desktop/data_env2/var_lib_mysql:/var/lib/mysql
+      - ~/Desktop/data_env2/init:/docker-entrypoint-initdb.d
+
+  r-studio-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.rstudio
+    restart: always
+    ports:
+      - "8787:8787"
+    networks:
+      - data_analysis_network
+    volumes:
+      - ~/Desktop/data_env2/working_dir:/home/rstudio/R_mounted_dir
+
+networks:
+  data_analysis_network:
+    external: true
+```
+
+これで準備が整ったので、コンテナを起動します。
+
+```text
+➜ docker-compose up -d
+【略】
+Creating data_env2_r-studio-server_1 ... done
+Creating data_env2_mysql_1           ... done
+```
+
+コンテナの状況を確認します。
+
+```text
+➜ docker-compose ps
+           Name                         Command             State                 Ports               
+------------------------------------------------------------------------------------------------------
+data_env2_mysql_1             docker-entrypoint.sh mysqld   Up      0.0.0.0:13306->3306/tcp, 33060/tcp
+data_env2_r-studio-server_1   /init                         Up      0.0.0.0:8787->8787/tcp           
+```
+
+コンテナがバックグラウンドで起動していることが確認できたので、[http://localhost:8787/](http://localhost:8787/)にアクセスします。`data_analysis_network`のアドレスを使ってコネクションを作成します。
+
+```text
+library(RMySQL)
+library(tidyverse)
+
+con <- dbConnect(
+  drv = RMySQL::MySQL(),
+  dbname = "test_db",
+  user = "root",
+  password = "Pass",
+  # docker network inspect data_analysis_network | jq '.[0].IPAM.Config[0].Gateway'の結果
+  host = "172.22.0.1",
+  port = 13306
+)
+
+dbGetQuery(con, "SELECT * FROM test_db.test_tbl1;")
+#   code      name
+# 1  001    Tanaka
+# 2  002      Sato
+# 3  003    Suzuki
+# 4  004 Takahashi
+
+dbGetQuery(con, "SELECT * FROM test_db.test_tbl2;")
+#   code age
+# 1  001  10
+# 2  002  20
+# 3  003  30
+# 4  004  40
+```
+
+コンテナ間の通信もできていることが確認できました。使用後はコンテナを停止しておきます。
+
+```text
+➜ docker-compose stop
+Stopping data_env2_mysql_1           ... done
+Stopping data_env2_r-studio-server_1 ... done
+
+➜ docker-compose ps
+           Name                         Command             State    Ports
+--------------------------------------------------------------------------
+data_env2_mysql_1             docker-entrypoint.sh mysqld   Exit 0        
+data_env2_r-studio-server_1   /init                         Exit 0   
+```
+
